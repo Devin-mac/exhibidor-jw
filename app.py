@@ -10,8 +10,21 @@ st.set_page_config(
     layout="wide" # Importante para que los 6 lugares quepan bien
 )
 
+# 2. CSS para mejorar la visibilidad de los botones en las pestañas
+st.markdown("""
+    <style>
+    .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
+        font-size: 18px; /* Pestañas más grandes y legibles */
+        font-weight: bold;
+    }
+    .stButton button {
+        white-space: pre-wrap; /* Permite que los nombres se rompan en dos líneas */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Estilo CSS personalizado para mejorar la estética de los botones
-# 2. Bloque de Estilo CSS Unificado
+# 3. Bloque de Estilo CSS Unificado
 st.markdown("""
     <style>
     /* --- Pestañas (Tabs) más grandes --- */
