@@ -62,63 +62,64 @@ def modal_cancelar(reserva):
         borrar_reserva(reserva['ID_Bloque'])
         st.rerun()
 
-def dibujar_matriz_dia(dia):
+def dibujar_matriz_dia(dia, mostrar_resumen):
     lugares = obtener_lista_lugares()
-    horas = [f"{h:02d}:00 - {h+1:02d}:00" for h in range(6, 22)] # Horario ampliado si lo deseas
+    horas = [f"{h:02d}:00 - {h+1:02d}:00" for h in range(6, 22)]
     
-    # --- SISTEMA DE PESTAÑAS ---
-    # La primera pestaña es el "Resumen" (Vista Matriz) y las demás son por Lugar
-    nombres_tabs = ["📊 Resumen"] + lugares
+    # Definir qué pestañas mostrar
+    if mostrar_resumen:
+        nombres_tabs = ["📊 Resumen General"] + lugares
+    else:
+        nombres_tabs = lugares
+
     tabs = st.tabs(nombres_tabs)
+    
+    # Índice inicial para los lugares
+    # Si mostramos resumen, el primer lugar está en la pestaña 1. Si no, en la 0.
+    offset = 1 if mostrar_resumen else 0
 
-    # --- PESTAÑA 1: RESUMEN (MATRIZ HÍBRIDA) ---
-    with tabs[0]:
-        st.subheader(f"Vista General - {dia}")
-        # Cabecera de la Matriz
-        cols_header = st.columns([1.2] + [2] * len(lugares))
-        cols_header[0].write("**Hora**")
-        for i, nombre in enumerate(lugares):
-            cols_header[i+1].info(f"**{nombre}**")
+    # --- VISTA DE RESUMEN (Solo si el toggle está activo) ---
+    if mostrar_resumen:
+        with tabs[0]:
+            st.subheader(f"Vista General - {dia}")
+            # Dibujar la matriz que ya tenías (la compacta para PC)
+            cols_header = st.columns([1.2] + [2] * len(lugares))
+            cols_header[0].write("**Hora**")
+            for i, nombre in enumerate(lugares):
+                cols_header[i+1].info(f"**{nombre}**")
 
-        for hora in horas:
-            cols = st.columns([1.2] + [2] * len(lugares))
-            cols[0].write(f"**{hora}**")
-            for i, lugar in enumerate(lugares):
-                reserva = verificar_disponibilidad(dia, hora, lugar)
-                key_res = f"resumen_{dia}_{hora}_{lugar}".replace(" ", "_")
-                with cols[i+1]:
-                    if reserva:
-                        # En resumen solo mostramos nombres para no saturar
-                        label = f"👤 {reserva['Publicador1']}\n👤 {reserva['Publicador2']}"
-                        st.button(label, key=key_res, use_container_width=True, disabled=True)
-                    else:
-                        st.caption("Libre") # Texto ligero para el resumen
+            for hora in horas:
+                cols = st.columns([1.2] + [2] * len(lugares))
+                cols[0].write(f"**{hora}**")
+                for i, lugar in enumerate(lugares):
+                    reserva = verificar_disponibilidad(dia, hora, lugar)
+                    key_res = f"res_{dia}_{hora}_{lugar}".replace(" ", "_")
+                    with cols[i+1]:
+                        if reserva:
+                            st.button(f"👤 {reserva['Publicador1']}\n👤 {reserva['Publicador2']}", 
+                                      key=key_res, use_container_width=True, disabled=True)
+                        else:
+                            st.caption("Libre")
 
-    # --- PESTAÑAS INDIVIDUALES POR LUGAR (IDEAL MÓVIL) ---
+    # --- VISTA DE PESTAÑAS POR LUGAR (La vista cómoda para móvil) ---
     for i, lugar in enumerate(lugares):
-        with tabs[i+1]:
-            st.subheader(f"📍 {lugar}")
-            st.info(f"Agenda para el {dia} en este lugar")
-            
+        with tabs[i + offset]:
+            st.subheader(f" 🏡 {lugar}")
             for hora in horas:
                 reserva = verificar_disponibilidad(dia, hora, lugar)
                 key_btn = f"tab_{dia}_{hora}_{lugar}".replace(" ", "_")
                 
-                # Diseño de fila única para móvil: Hora + Botón de acción
+                # Layout de dos columnas: una para la hora y otra para el botón
                 c1, c2 = st.columns([1, 3])
                 c1.write(f"**{hora}**")
                 
                 with c2:
                     if reserva:
-                        # Botón de eliminar con nombres uno debajo del otro
-                        label = f"👤 {reserva['Publicador1']}\n👤 {reserva['Publicador2']}\n\n🗑️ ELIMINAR TURNO"
+                        # Botón para eliminar (Formato vertical de nombres)
+                        label = f"👤 {reserva['Publicador1']}\n👤 {reserva['Publicador2']}\n\n🗑️ ELIMINAR"
                         if st.button(label, key=key_btn, use_container_width=True, type="secondary"):
-                            # Aquí llamarías a tu función de cancelar que ya tienes
-                            from src.ui_components import modal_cancelar # Asegurar import
                             modal_cancelar(reserva)
                     else:
-                        # Botón de reservar
-                        if st.button(f"➕ Reservar Espacio", key=key_btn, use_container_width=True, type="primary"):
-                            from src.ui_components import modal_reservar # Asegurar import
+                        if st.button(f"➕ Reservar", key=key_btn, use_container_width=True, type="primary"):
                             modal_reservar(dia, hora, lugar)
-                st.divider() # Línea sutil entre horas para facilitar la lectura
+                st.divider()
