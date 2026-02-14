@@ -17,7 +17,7 @@ def renderizar_cabecera_lugares():
 
 @st.dialog("Reservar Espacio")
 def modal_reservar(dia, hora, lugar):
-    st.write(f"🗓 **Día:** {dia} | ⏰ **Hora:** {hora} | 📍 {lugar}")
+    st.write(f"🗓 **Día:** {dia} | ⏰ **Hora:** {hora} | 🏡 {lugar}")
     nombres = obtener_lista_publicadores()
     
     p1 = st.selectbox("Selecciona Publicador 1", ["---"] + nombres, key=f"p1_{dia}_{hora}_{lugar}")
