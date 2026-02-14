@@ -120,7 +120,7 @@ def main():
     for i, dia in enumerate(dias):
         with tabs[i]:
             st.subheader(f"Horarios para el {dia}")
-            dibujar_matriz_dia(dia)
+            dibujar_matriz_dia(dia, vista_escritorio)
 
     # 3. Sección de administración (al final de la página)
     st.divider()
