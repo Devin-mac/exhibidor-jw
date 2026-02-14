@@ -106,7 +106,12 @@ def main():
     st.subheader(f"✨ {semana_msg}")
     st.write("Selecciona un día y haz clic en un espacio libre para agendarte con tu pareja de servicio.")
 
-    
+   # --- AQUÍ EL AJUSTE DEL TOGGLE ---
+    # Lo colocamos en la barra lateral para que no ocupe espacio arriba de las pestañas
+    with st.sidebar:
+        st.header("Configuración de Vista")
+        vista_escritorio = st.toggle("💻 Vista de Escritorio (Matriz)", value=False)
+        st.info("Desactiva para ver lugares como pestañas (ideal para celulares).") 
 
     # 2. Creación de pestañas por día
     dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
